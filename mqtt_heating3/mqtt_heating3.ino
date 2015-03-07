@@ -27,7 +27,7 @@
 // tx at at most every 5s, and at least every 60s
 #define PUBLISH_MIN_SILENCE  5000
 #define PUBLISH_MAX_SILENCE  60000
-#define PUBLISH_DELTA        0.1
+#define PUBLISH_DELTA        0.25
 
 // analog pins patched to NTC 10K thermistors
 #define NTC_HWC_TOP_PIN      A3
@@ -95,8 +95,8 @@ unsigned long owLastRead = 0;
 
 // structs to hold our various temp sensor states
 Temp hwcTop              = { "hwc", "top", 0, 0, 0 };
-Temp hwcMid              = { "hwc", "mid", 0, 0, 0 };
-Temp hwcBot              = { "hwc", "bot", 0, 0, 0 };
+Temp hwcMid              = { "hwc", "middle", 0, 0, 0 };
+Temp hwcBot              = { "hwc", "bottom", 0, 0, 0 };
 Temp ufhpFlow            = { "ufhp", "flow", 0, 0, 0 };
 Temp ufhpReturn          = { "ufhp", "return", 0, 0, 0 };
 
