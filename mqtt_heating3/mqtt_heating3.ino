@@ -319,9 +319,9 @@ void publishPinState(byte pin, byte state)
 */
 void readNtcSensors()
 {
-    hwcTop.newValue = readNtcSensor(NTC_HWC_TOP_PIN);
-    hwcMid.newValue = readNtcSensor(NTC_HWC_MID_PIN);
-    hwcBot.newValue = readNtcSensor(NTC_HWC_BOT_PIN);
+  hwcTop.newValue = readNtcSensor(NTC_HWC_TOP_PIN);
+  hwcMid.newValue = readNtcSensor(NTC_HWC_MID_PIN);
+  hwcBot.newValue = readNtcSensor(NTC_HWC_BOT_PIN);
 }
 
 double readNtcSensor(byte pin) 
@@ -452,14 +452,14 @@ void publishTemp(Temp& temp)
   // check if this temp requires publishing
   if (!readyPublishTemp(temp))
     return;
-    
+  
   // convert to payload
-  static char payload[5];
-  dtostrf(temp.newValue, 4, 1, payload);
+  static char payload[6];
+  dtostrf(temp.newValue, 3, 1, payload);
   
   // publish (don't send the last byte which is the line terminator 
   // as it screws with openHAB parsing)
-  mqtt.publish(getHeatingTopic(temp.subTopic, temp.tempName), (byte *)payload, sizeof(payload) - 1, 0);
+  mqtt.publish(getHeatingTopic(temp.subTopic, temp.tempName), (byte *)payload, strlen(payload), 0);
   
   // update our published state
   temp.currentValue = temp.newValue;
