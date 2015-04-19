@@ -23,7 +23,7 @@ typedef struct
   byte pin;
   byte state;
   byte published;
-  long time;
+  unsigned long time;
 } Pin;
 
 void readDigitalPin(Pin& pin);
@@ -31,11 +31,11 @@ void readDigitalPin(Pin& pin);
 // NOTE: pins 0 & 1 are used for serial RX/TX
 // NOTE: ethernet shield uses pins 4 for SD card and 10-13 for SPI
 Pin  monitorPins[MONITOR_PIN_COUNT] = { 
-  { 2, -1, -1, 0 }, 
-  { 3, -1, -1, 0 }, 
-  { 5, -1, -1, 0 }, 
-  { 7, -1, -1, 0 }, 
-  { 9, -1, -1, 0 } 
+  { 2, -1, -1, 0L }, 
+  { 3, -1, -1, 0L }, 
+  { 5, -1, -1, 0L }, 
+  { 7, -1, -1, 0L }, 
+  { 9, -1, -1, 0L } 
 };
 
 // ethernet MAC address (must be unique on the LAN)

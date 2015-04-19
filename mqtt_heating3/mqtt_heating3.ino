@@ -49,7 +49,7 @@ typedef struct
   byte pin;
   byte state;
   byte published;
-  long time;
+  unsigned long time;
 } Pin;
 
 void readDigitalPin(Pin& pin);
@@ -70,8 +70,8 @@ boolean readyPublishTemp(Temp& temp);
 // NOTE: ethernet shield uses pins 4 for SD card and 10-13 for SPI
 Pin monitorPins[MONITOR_PIN_COUNT] = 
 { 
-  { A0, -1, -1, 0 }, 
-  { A1, -1, -1, 0 } 
+  { A0, -1, -1, 0L }, 
+  { A1, -1, -1, 0L } 
 };
 
 // NTC 10K thermistor constants
@@ -94,11 +94,11 @@ byte owReadStage = 0;
 unsigned long owLastRead = 0;
 
 // structs to hold our various temp sensor states
-Temp hwcTop              = { "hwc", "top", 0, 0, 0 };
-Temp hwcMid              = { "hwc", "middle", 0, 0, 0 };
-Temp hwcBot              = { "hwc", "bottom", 0, 0, 0 };
-Temp ufhpFlow            = { "ufhp", "flow", 0, 0, 0 };
-Temp ufhpReturn          = { "ufhp", "return", 0, 0, 0 };
+Temp hwcTop              = { "hwc", "top", 0, 0, 0L };
+Temp hwcMid              = { "hwc", "middle", 0, 0, 0L };
+Temp hwcBot              = { "hwc", "bottom", 0, 0, 0L };
+Temp ufhpFlow            = { "ufhp", "flow", 0, 0, 0L };
+Temp ufhpReturn          = { "ufhp", "return", 0, 0, 0L };
 
 // ethernet MAC address (must be unique on the LAN)
 byte mac[]               = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x51 };
