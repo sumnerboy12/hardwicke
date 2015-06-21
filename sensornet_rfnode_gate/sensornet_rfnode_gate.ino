@@ -4,7 +4,7 @@
 #include <LowPower.h>
 
 // uncomment for serial debugging
-//#define DEBUG
+#define DEBUG
 
 #define NODEID        2       // unique for each node on same network
 #define NETWORKID     1       // the same on all nodes that talk to each other
@@ -26,7 +26,8 @@ void gateInterrupt()
   // nothing to do since we just want to wakeup
 }
 
-void setup() {  
+void setup() 
+{  
   // initialise the serial interface
   Serial.begin(9600);
   Serial.println("-------------------------------------");
@@ -50,7 +51,8 @@ void setup() {
   Serial.flush();
 }
 
-void loop() {
+void loop() 
+{
   // allow wake up pin to trigger interrupt on a change
   attachInterrupt(INTERRUPT, gateInterrupt, CHANGE);
   
@@ -59,7 +61,7 @@ void loop() {
   radio.sleep();
   LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF); 
   
-  // disable external pin interrupt on wake up pin
+  // disable external interrupt on wake up pin
   detachInterrupt(INTERRUPT); 
 
   // sleep for a short period in order to debounce
@@ -93,7 +95,8 @@ void loop() {
 #endif
 }
 
-void sendPayload(byte pin, int data, int battery) {
+void sendPayload(byte pin, int data, int battery) 
+{
   // build the payload to send over RF
   static byte payload[5]; 
   payload[0] = pin;

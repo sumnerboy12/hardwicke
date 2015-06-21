@@ -6,8 +6,6 @@
 #include <SPI.h>
 #include <Wire.h>
 
-#include "sensornet_rfbridge.h"
-
 #define NODEID        1    // unique for each node on same network
 #define NETWORKID     1    // the same on all nodes that talk to each other
 #define FREQUENCY     RF69_433MHZ
@@ -18,10 +16,20 @@
 // the I2C address of the sensornet gateway
 #define I2C_GATEWAY_ADDRESS 0x9
 
-RFM69 radio;
-I2CPacket payload;
+typedef struct {
+  // sent from remote nodes
+  byte pin;
+  int data;
+  int battery;
+  // filled in by the RF bridge
+  byte nodeId;
+  int rssi;
+} I2CPacket payload;
 
-void setup() { 
+RFM69 radio;
+
+void setup() 
+{ 
   // initialise the radio
   radio.initialize(FREQUENCY, NODEID, NETWORKID);
   radio.setHighPower();
@@ -31,14 +39,15 @@ void setup() {
   Wire.begin();
 }
 
-void loop() {
+void loop() 
+{
   if (radio.receiveDone())
   {
     // read the data into our struct
     byte * p = (byte *)&payload;
-    for (byte i = 0; i < radio.DATALEN; i++)
+    for (byte i = 0; i < radio.DATALEN; i++) 
       *p++ = radio.DATA[i];
-
+	
     // add the radio specific stuff (not tx'ed)
     payload.nodeId = radio.SENDERID;
     payload.rssi = radio.RSSI;
@@ -49,9 +58,8 @@ void loop() {
     Wire.endTransmission();
 
     // send an ACK if requested
-    if (radio.ACKRequested()) {
+    if (radio.ACKRequested()) 
       radio.sendACK();
-    }
 
     // flash the LED to indicate a packet has been processed
     blink(LED, 5);
