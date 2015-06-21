@@ -1,16 +1,24 @@
-#include <avr/wdt.h>
 #include <SPI.h>
 #include <Ethernet.h>
 #include <PubSubClient.h>
 #include <Wire.h>
 
-#include "sensornet_gateway.h"
-
 // serial rate
 #define SERIAL_BAUD     9600
 
-// the I2C bus address
+// the I2C address of the sensornet gateway
 #define I2C_ADDRESS     0x9
+
+// the I2C packet from the RF bridge
+typedef struct {
+  // sent from remote nodes
+  byte pin;
+  int data;
+  int battery;
+  // filled in by the RF bridge
+  byte nodeId;
+  int rssi;
+} I2CPacket;
 
 // unique MAC address on our LAN (0x52 => .82)
 byte mac[]              = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x52 };
@@ -33,10 +41,8 @@ PubSubClient mqtt(mqttBroker, 1883, mqtt_callback, ethernet);
 // the I2C packet from the RF bridge
 I2CPacket payload;
 
-void setup() {
-  // ensure the watchdog is disabled
-  wdt_disable();
-
+void setup() 
+{
   // initialise the serial interface  
   Serial.begin(SERIAL_BAUD);
 
@@ -63,20 +69,15 @@ void setup() {
   Wire.onReceive(receiveEvent);
   Serial.println("done");
   
-  // enable the watchdog timer - 8s timeout
-  wdt_enable(WDTO_8S);
-  wdt_reset();
-
   Serial.println("Initialisation complete");
+  Serial.println();
 }
 
 // for joining back to the main thread
 int dataReady = 0;
 
-void loop() { 
-  // reset the watchdog timer
-  wdt_reset();
-  
+void loop() 
+{ 
   // check our DHCP lease is still ok
   Ethernet.maintain();
 
@@ -84,7 +85,7 @@ void loop() {
   // so attempt to reconnect if required
   if (mqtt.loop() || mqttConnect()) {  
     // if we have data then publish an MQTT message
-    if (dataReady == 1) {
+    if (dataReady) {
       static char topic[32];  
       static char message[8];  
   
@@ -110,11 +111,13 @@ void loop() {
   }
 }
 
-void mqtt_callback(char* topic, byte* payload, unsigned int length) {
+void mqtt_callback(char* topic, byte* payload, unsigned int length) 
+{
   // we don't subscribe to any topics
 }
 
-boolean mqttConnect() {
+boolean mqttConnect() 
+{
   Serial.print("Attempting to connect to MQTT broker as ");
   Serial.print(mqttUsername);
   Serial.print("...");
@@ -132,22 +135,23 @@ boolean mqttConnect() {
   return success;
 }
 
-void receiveEvent(int howMany) {
+void receiveEvent(int howMany) 
+{
   // check this is a valid data packet
-  if (howMany != sizeof(payload)) {
+  if (howMany == sizeof(payload)) {
+    // read the data into our payload struct
+    byte * p = (byte *)&payload;
+    for (byte i = 0; i < sizeof(payload); i++)
+      *p++ = Wire.read();
+   
+    // set the flag so the main loop can handle
+    dataReady = 1;
+  } else {
+    // log an error
     Serial.print("Invalid payload received - expecting ");
     Serial.print(sizeof(payload));
     Serial.print(" but received ");
     Serial.println(howMany);
-    return;
   }
-  
-  // read the data into our struct
-  byte * p = (byte *)&payload;
-  for (byte i = 0; i < sizeof(payload); i++)
-    *p++ = Wire.read();
-   
-  // set the flag so the main loop can handle
-  dataReady = 1;
 }
 
