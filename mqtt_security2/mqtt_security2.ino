@@ -5,6 +5,7 @@
 *
 * Description: standard IO monitoring/control (via relay board)
 ***************************************************************************/
+#include <avr/wdt.h>
 #include <SPI.h>
 #include <Ethernet.h>
 #include <PubSubClient.h>
@@ -57,6 +58,9 @@ PubSubClient mqtt(mqttBroker, 1883, mqtt_callback, ethernet);
 
 void setup() 
 {
+  // ensure the watchdog is disabled
+  wdt_disable();
+
   // initialise the serial interface  
   Serial.begin(SERIAL_BAUD);
   
@@ -84,12 +88,23 @@ void setup()
   // attempt to connect to our MQTT broker
   mqttConnect();
 
+  // enable the watchdog timer - 8s timeout
+  Serial.print("Enabling watchdog timeout for ");
+  Serial.print(WDTO_8S);
+  Serial.print(" secs...");
+  wdt_enable(WDTO_8S);
+  wdt_reset();
+  Serial.println("done");
+  
   Serial.println("Initialisation complete");
   Serial.println();
 }
 
 void loop() 
 {
+  // reset the watchdog timer
+  wdt_reset();
+  
   // check our DHCP lease is still ok
   Ethernet.maintain();
 

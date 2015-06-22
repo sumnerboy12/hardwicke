@@ -1,3 +1,4 @@
+#include <avr/wdt.h>
 #include <SPI.h>
 #include <Ethernet.h>
 #include <PubSubClient.h>
@@ -43,6 +44,9 @@ I2CPacket payload;
 
 void setup() 
 {
+  // ensure the watchdog is disabled
+  wdt_disable();
+
   // initialise the serial interface  
   Serial.begin(SERIAL_BAUD);
 
@@ -69,6 +73,14 @@ void setup()
   Wire.onReceive(receiveEvent);
   Serial.println("done");
   
+  // enable the watchdog timer - 8s timeout
+  Serial.print("Enabling watchdog timeout for ");
+  Serial.print(WDTO_8S);
+  Serial.print(" secs...");
+  wdt_enable(WDTO_8S);
+  wdt_reset();
+  Serial.println("done");
+  
   Serial.println("Initialisation complete");
   Serial.println();
 }
@@ -78,6 +90,9 @@ int dataReady = 0;
 
 void loop() 
 { 
+  // reset the watchdog timer
+  wdt_reset();
+
   // check our DHCP lease is still ok
   Ethernet.maintain();
 

@@ -7,11 +7,12 @@
 *              reads 3xNTC10K sensors (HWC) and publishes values
 *              reads 2xDS18B20 sensors (UFHP) and publishes values
 ***************************************************************************/
+#include <avr/wdt.h>
 #include <math.h>
 #include <SPI.h>
 #include <Ethernet.h>
-#include <OneWire.h>
 #include <PubSubClient.h>
+#include <OneWire.h>
 
 // serial rate
 #define SERIAL_BAUD          9600
@@ -120,6 +121,9 @@ PubSubClient mqtt(mqttBroker, 1883, mqtt_callback, ethernet);
 
 void setup()
 {
+  // ensure the watchdog is disabled
+  wdt_disable();
+
   // initialise the serial interface  
   Serial.begin(SERIAL_BAUD);
   
@@ -160,6 +164,14 @@ void setup()
   setOneWireResolution(owAddrUfhpFlow, OW_RESOLUTION);
   setOneWireResolution(owAddrUfhpReturn, OW_RESOLUTION);
   Serial.println("done");
+
+  // enable the watchdog timer - 8s timeout
+  Serial.print("Enabling watchdog timeout for ");
+  Serial.print(WDTO_8S);
+  Serial.print(" secs...");
+  wdt_enable(WDTO_8S);
+  wdt_reset();
+  Serial.println("done");
   
   Serial.println("Initialisation complete");
   Serial.println();
@@ -167,6 +179,9 @@ void setup()
 
 void loop()
 {
+  // reset the watchdog timer
+  wdt_reset();
+
   // check our DHCP lease is still ok
   Ethernet.maintain();
 
